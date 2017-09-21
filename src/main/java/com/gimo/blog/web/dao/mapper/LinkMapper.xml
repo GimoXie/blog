@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gimo.blog.web.dao.LinkDao">
+
+	<resultMap type="Link" id="LinkResult">
+		<result property="id" column="id" jdbcType="BIGINT" />
+		<result property="linkName" column="linkName" jdbcType="VARCHAR" />
+		<result property="linkUrl" column="linkUrl" jdbcType="VARCHAR" />
+		<result property="orderNo" column="orderNo" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+			id,
+			linkName,
+			linkUrl,
+			orderNo
+	</sql>
+	
+	<select id="queryAll" parameterType="Map" resultMap="LinkResult">
+		select 
+		<include refid="Base_Column_List" />  
+		from t_link 
+		<where>
+			<if test="linkName!=null and linkName!='' ">
+				and linkName like concat('%',#{linkName},'%')
+			</if>
+		</where>
+		order by orderNo
+	</select>
+	
+	<select id="getCount" parameterType="Map" resultType="Long">
+		select count(1) from t_link
+		<where>
+			<if test="linkName!=null and linkName!='' ">
+				and linkName like concat('%',#{linkName},'%')
+			</if>
+		</where>
+		order by orderNo
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="Long">
+		delete from t_link where id=#{id}
+	</delete>
+	
+	<insert id="insertSelective" parameterType="BlogType">
+		insert into t_link values(null,#{linkName},#{linkUrl},#{orderNo});
+	</insert>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="BlogType">
+		update t_link
+		<set>
+			<if test="linkName!=null and linkName!=''">
+				linkName=#{linkName},
+			</if>
+			<if test="linkUrl!=null and linkUrl!=''">
+				linkUrl=#{linkUrl},
+			</if>
+			<if test="orderNo!=null">
+				orderNo=#{orderNo},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<select id="selectList" resultMap="LinkResult">
+		select 
+		<include refid="Base_Column_List" />  
+		from t_link
+		order by orderNo 
+	</select>
+	
+</mapper> 

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gimo.blog.web.dao.RoleDao">
+    <resultMap id="RoleResult" type="Role">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="roleName" property="roleName" jdbcType="VARCHAR" />
+        <result column="roleSign" property="roleSign" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, roleName, roleSign, description
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="RoleResult" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List" />
+        from t_role
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from t_role
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="Role">
+        insert into t_role (id, roleName, roleSign,
+        description)
+        values (#{id,jdbcType=BIGINT}, #{roleName,jdbcType=VARCHAR}, #{roleSign,jdbcType=VARCHAR},
+        #{description,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="Role">
+        insert into t_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="roleName != null">
+                roleName,
+            </if>
+            <if test="roleSign != null">
+                roleSign,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="roleName != null">
+                #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="roleSign != null">
+                #{roleSign,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="Role">
+        update t_role
+        <set>
+            <if test="roleName != null">
+                roleName = #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="roleSign != null">
+                roleSign = #{roleSign,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="Role">
+        update t_role
+        set roleName = #{roleName,jdbcType=VARCHAR},
+        roleSign = #{roleSign,jdbcType=VARCHAR},
+        description = #{description,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 通过用户id 查询用户 拥有的角色 -->
+    <select id="selectRolesByUserId" resultMap="RoleResult" parameterType="java.lang.Long">
+        SELECT r.* FROM t_role r LEFT JOIN t_user_role ur ON r.id = ur.roleId
+        WHERE ur.userId = #{id,jdbcType=BIGINT}
+    </select>
+</mapper>

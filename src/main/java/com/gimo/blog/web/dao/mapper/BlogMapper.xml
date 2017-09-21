@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gimo.blog.web.dao.BlogDao">
+	<resultMap type="Blog" id="BlogResult">
+		<result property="id" column="id" jdbcType="BIGINT" />
+		<result property="title" column="title" jdbcType="VARCHAR" />
+		<result property="summary" column="summary" jdbcType="VARCHAR" />
+		<result property="releaseDate" column="releaseDate" jdbcType="TIMESTAMP" />
+		<result property="clickHit" column="clickHit" jdbcType="BIGINT" />
+		<result property="replyHit" column="replyHit" jdbcType="BIGINT" />
+		<result property="content" column="content" jdbcType="VARCHAR" />
+		<result property="keyWord" column="keyWord" jdbcType="VARCHAR" />
+		<association property="blogType" column="typeId" select="com.gimo.blog.web.dao.BlogTypeDao.selectByPrimaryKey"/>
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+			id,
+			title,
+			summary,
+			releaseDate,
+			DATE_FORMAT(releaseDate,'%Y-%m-%d %H:%i:%s') AS releaseDateStr,
+			clickHit,
+			replyHit,
+			content,
+			typeId,
+			keyWord
+	</sql>
+	
+	<select id="getCount" parameterType="Map" resultType="Long">
+		select count(1) from t_blog
+		<where>
+			<if test="title!=null and title!='' ">
+				and title like concat('%',#{title},'%')
+			</if>
+			<if test="typeId!=null and typeId!='' ">
+				and typeId=#{typeId}
+			</if>
+			<if test="releaseDateStr!=null and releaseDateStr!='' ">
+				and DATE_FORMAT(releaseDate,'%Y年%m月')=#{releaseDateStr}
+			</if>
+		</where>
+		order by releaseDate desc
+	</select>
+	
+	<select id="queryAll" parameterType="Map" resultMap="BlogResult">
+		select 
+		<include refid="Base_Column_List" /> 
+		from t_blog
+		<where>
+			<if test="title!=null and title!='' ">
+				and title like concat('%',#{title},'%')
+			</if>
+			<if test="typeId!=null and typeId!='' ">
+				and typeId=#{typeId}
+			</if>
+			<if test="releaseDateStr!=null and releaseDateStr!='' ">
+				and DATE_FORMAT(releaseDate,'%Y年%m月')=#{releaseDateStr}
+			</if>
+		</where>
+		order by releaseDate desc
+	</select>
+	
+	
+	<select id="selectByPrimaryKey" parameterType="Long" resultMap="BlogResult">
+		select 
+		<include refid="Base_Column_List" />
+		from t_blog 
+		where id=#{id}
+	</select>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="Blog">
+		update t_blog
+		<set>
+			<if test="title!=null and title!=''">
+				title=#{title},
+			</if>
+			<if test="summary!=null and summary!=''">
+				summary=#{summary},
+			</if>
+			<if test="content!=null and content!=''">
+				content=#{content},
+			</if>
+			<if test="blogType.id!=null">
+				typeId=#{blogType.id},
+			</if>
+			<if test="clickHit!=null">
+				clickHit=#{clickHit},
+			</if>
+			<if test="replyHit!=null">
+				replyHit=#{replyHit},
+			</if>
+			<if test="keyWord!=null and keyWord!=''">
+				keyWord=#{keyWord},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<select id="getLastBlog" parameterType="Long" resultMap="BlogResult">
+		select 
+		<include refid="Base_Column_List" /> 
+		from t_blog 
+		where id &lt; #{id} 
+		order by id desc limit 1
+	</select>
+
+	<select id="getNextBlog" parameterType="Long" resultMap="BlogResult">
+		select 
+		<include refid="Base_Column_List" /> 
+		from t_blog where id &gt; #{id} 
+		order by id asc limit 1
+	</select>
+	
+	<select id="selectList" resultMap="BlogResult">
+		SELECT
+		DATE_FORMAT(releaseDate,'%Y年%m月') AS releaseDateStr,
+		COUNT(*) AS blogCount 
+		FROM t_blog 
+		GROUP BY DATE_FORMAT(releaseDate,'%Y年%m月') 
+		ORDER BY DATE_FORMAT(releaseDate,'%Y年%m月') DESC
+	</select>
+	
+	<insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"  parameterType="Blog" >
+		insert into t_blog values(
+			null,
+			#{title},
+			#{summary},
+			now(),
+			0,
+			0,
+			#{content},
+			#{blogType.id},
+			#{keyWord}
+		)
+	</insert>
+	
+	<delete id="deleteByPrimaryKey" parameterType="Long">
+		delete from t_blog where id=#{id}
+	</delete>
+	
+	<delete id="deleteByBlogTypeId" parameterType="Long">
+		delete from t_blog where typeid=#{id}
+	</delete>
+</mapper> 

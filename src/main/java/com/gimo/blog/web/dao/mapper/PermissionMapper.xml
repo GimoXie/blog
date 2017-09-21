@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gimo.blog.web.dao.PermissionDao">
+    <resultMap id="PermissionResult" type="Permission">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="permissionName" property="permissionName" jdbcType="VARCHAR" />
+        <result column="permissionSign" property="permissionSign" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, permissionName, permissionSign, description
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="PermissionResult" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List" />
+        from t_permission
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from t_permission
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="Permission">
+        insert into t_permission (id, permissionName, permissionSign,
+        description)
+        values (#{id,jdbcType=BIGINT}, #{permissionName,jdbcType=VARCHAR},
+        #{permissionSign,jdbcType=VARCHAR},
+        #{description,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="Permission">
+        insert into t_permission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="permissionName != null">
+                permissionName,
+            </if>
+            <if test="permissionSign != null">
+                permissionSign,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="permissionName != null">
+                #{permissionName,jdbcType=VARCHAR},
+            </if>
+            <if test="permissionSign != null">
+                #{permissionSign,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="Permission">
+        update t_permission
+        <set>
+            <if test="permissionName != null">
+                permissionName = #{permissionName,jdbcType=VARCHAR},
+            </if>
+            <if test="permissionSign != null">
+                permissionSign = #{permissionSign,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="Permission">
+        update t_permission
+        set permissionName = #{permissionName,jdbcType=VARCHAR},
+        permissionSign = #{permissionSign,jdbcType=VARCHAR},
+        description =
+        #{description,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 通过角色id 查询角色 拥有的权限 -->
+    <select id="selectPermissionsByRoleId" parameterType="java.lang.Long" resultMap="PermissionResult">
+        SELECT p.* FROM t_permission p LEFT JOIN t_role_permission rp ON rp.permissionId = p.id
+        WHERE rp.roleId =
+        #{id,jdbcType=BIGINT}
+    </select>
+</mapper>

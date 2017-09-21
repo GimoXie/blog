@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gimo.blog.web.dao.BlogTypeDao">
+
+	<resultMap type="BlogType" id="BlogTypeResult">
+		<result property="id" column="id" jdbcType="BIGINT" />
+		<result property="typeName" column="typeName" jdbcType="VARCHAR" />
+		<result property="orderNo" column="orderNo" jdbcType="INTEGER" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+			id,
+			typeName,
+			orderNo
+	</sql>
+
+	<select id="selectByPrimaryKey" parameterType="Long" resultMap="BlogTypeResult">
+		select 
+		<include refid="Base_Column_List"/> 
+		from t_blogtype where id=#{id}
+	</select>
+	
+	<select id="selectList" resultMap="BlogTypeResult">
+		select
+		t2.id,t2.typeName,COUNT(t1.id) AS blogCount FROM t_blog t1 RIGHT JOIN
+		t_blogtype t2 ON t1.typeId=t2.id GROUP BY t2.typeName,t2.id ORDER BY
+		t2.orderNo;
+	</select>
+	
+	<select id="getCount" parameterType="Map" resultType="Long">
+		select count(1) from t_blogtype
+		<where>
+			<if test="typeName!=null and typeName!='' ">
+				and typeName like concat('%',#{typeName},'%')
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryAll" parameterType="Map" resultMap="BlogTypeResult">
+		select 
+		<include refid="Base_Column_List" /> 
+		from t_blogtype
+		<where>
+			<if test="typeName!=null and typeName!='' ">
+				and typeName like concat('%',#{typeName},'%')
+			</if>
+		</where>
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="Long">
+		delete from t_blogtype where id=#{id}
+	</delete>
+	
+	<insert id="insertSelective" parameterType="BlogType">
+		insert into t_blogtype values(null,#{typeName},#{orderNo});
+	</insert>
+	
+	<update id="updateByPrimaryKeySelective" parameterType="BlogType">
+		update t_blogtype
+		<set>
+			<if test="typeName!=null and typeName!=''">
+				typeName=#{typeName},
+			</if>
+			<if test="orderNo!=null">
+				orderNo=#{orderNo},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+</mapper> 
